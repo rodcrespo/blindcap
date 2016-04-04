@@ -26,13 +26,26 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="ledOnClick"
-            android:text="Led On" android:layout_above="@+id/ledOffButton"
-            android:layout_alignStart="@+id/ledOffButton"/>
+            android:text="Led On"
+            android:layout_above="@+id/ledOffButton"
+            android:layout_centerHorizontal="true"/>
+
     <Button android:id="@+id/ledOffButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="ledOffClick"
-            android:text="Led Off" android:layout_alignParentBottom="true" android:layout_centerHorizontal="true"
-            android:layout_marginBottom="141dp"/>
+            android:text="Led Off"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="140dp"/>
+
+    <Button android:id="@+id/nextViewButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="nextView"
+            android:text="Next View"
+            android:layout_marginBottom="30dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"/>
 
 </RelativeLayout>

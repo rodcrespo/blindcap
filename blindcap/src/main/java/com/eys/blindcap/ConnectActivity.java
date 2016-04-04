@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -174,6 +175,13 @@ public class ConnectActivity extends Activity {
     private void showMessage(String str){
         Toast.makeText(ConnectActivity.this, str, Toast.LENGTH_SHORT).show();
     }
+
+
+    public void nextView(View view) {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+    }
+
 
     @Override
     public void onDestroy(){
