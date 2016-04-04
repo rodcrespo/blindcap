@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/blindcap.iml" filepath="$PROJECT_DIR$/.idea/modules/blindcap.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/blindcap/blindcap-blindcap.iml" filepath="$PROJECT_DIR$/.idea/modules/blindcap/blindcap-blindcap.iml" />
+      <module fileurl="file://$PROJECT_DIR$/blindcap.iml" filepath="$PROJECT_DIR$/blindcap.iml" />
+      <module fileurl="file://$PROJECT_DIR$/blindcap/blindcap-blindcap.iml" filepath="$PROJECT_DIR$/blindcap/blindcap-blindcap.iml" />
     </modules>
   </component>
 </project>
