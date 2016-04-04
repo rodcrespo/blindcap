@@ -1,0 +1,38 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context=".MainActivity" android:background="@drawable/mockup">
+
+
+    <Button
+            android:id="@+id/scanButton"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:onClick="scanOnClick"
+            android:text="scan" />
+
+    <ListView
+            android:id="@+id/bleDeviceListView"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/scanButton"
+            android:layout_below="@+id/scanButton"
+    >
+    </ListView>
+
+    <Button
+            android:id="@+id/ledOnButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="ledOnClick"
+            android:text="Led On" android:layout_above="@+id/ledOffButton"
+            android:layout_alignStart="@+id/ledOffButton"/>
+    <Button android:id="@+id/ledOffButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="ledOffClick"
+            android:text="Led Off" android:layout_alignParentBottom="true" android:layout_centerHorizontal="true"
+            android:layout_marginBottom="141dp"/>
+
+</RelativeLayout>
