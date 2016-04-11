@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:layout_gravity="center">
+    <TextView
+        android:id="@+id/lapNumber"
+        android:layout_width="25dp"
+        android:layout_height="wrap_content"
+        android:text="--"
+        android:textColor="@color/colorPrimary"
+        android:textSize="20dp"
+        android:layout_marginRight="15dp"/>
+    <ImageView
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:background="@drawable/best_lap_bar_grey"
+        android:layout_marginTop="6dp"
+        android:layout_toRightOf="@id/lapNumber"/>
+    <TextView
+        android:id="@+id/lapTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TIME --:--:--"
+        android:textColor="@color/colorLightGrey"
+        android:textSize="15dp"
+        android:layout_marginTop="2dp"
+        android:layout_below="@id/progressBar"
+        android:layout_toRightOf="@id/lapNumber"/>
+</RelativeLayout>

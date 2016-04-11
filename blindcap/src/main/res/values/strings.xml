@@ -9,4 +9,7 @@
     <string name="ble_not_supported">BLE not supported</string>
     <string name="start">Start</string>
     <string name="stop">Stop</string>
+    <!-- laps -->
+    <string name="laps">LAPS</string>
+    <string name="best_laps">BEST LAPS</string>
 </resources>
