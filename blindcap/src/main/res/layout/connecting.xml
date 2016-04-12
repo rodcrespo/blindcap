@@ -1,74 +1,8 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".MainActivity"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/background_gradient">
-
-    <RelativeLayout
-        android:id="@+id/contentView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <ImageView
-            android:layout_width="200dp"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="100dp"
-            android:adjustViewBounds="true"
-            android:src="@drawable/logo_samsung_intro"/>
-
-        <ImageButton
-            android:id="@+id/scanButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="80dp"
-            android:src="@drawable/connect_button"
-            android:background="#00000000" />
-
-        <!--<Button-->
-            <!--android:alpha="0"-->
-                <!--android:id="@+id/ledOnButton"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:onClick="ledOnClick"-->
-                <!--android:text="Led On"-->
-                <!--android:layout_above="@+id/ledOffButton"-->
-                <!--android:layout_centerHorizontal="true"/>-->
-
-        <!--<Button-->
-            <!--android:alpha="0"-->
-            <!--android:id="@+id/ledOffButton"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:onClick="ledOffClick"-->
-                <!--android:text="Led Off"-->
-                <!--android:layout_alignParentBottom="true"-->
-                <!--android:layout_centerHorizontal="true"-->
-                <!--android:layout_marginBottom="140dp"/>-->
-
-        <!--<Button-->
-            <!--android:alpha="0"-->
-            <!--android:id="@+id/nextViewButton"-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:onClick="nextView"-->
-                <!--android:text="Next View"-->
-                <!--android:layout_marginBottom="30dp"-->
-                <!--android:layout_alignParentBottom="true"-->
-                <!--android:layout_centerHorizontal="true"/>-->
-
-    </RelativeLayout>
-
-    <!-- Connecting overlay -->
-
-    <LinearLayout
-        android:id="@+id/connectingView"
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    android:layout_height="match_parent">
 
         <ImageView
             android:id="@+id/logo"
@@ -149,17 +83,4 @@
             android:letterSpacing="0.4"
             android:textSize="11dp"/>
 
-    </LinearLayout>
-
-    <!-- Device List -->
-
-    <ListView
-        android:id="@+id/bleDeviceListView"
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
-        android:background="@color/colorLightGrey"
-        android:layout_gravity="center">
-    </ListView>
-
-</FrameLayout>
-
+</LinearLayout>

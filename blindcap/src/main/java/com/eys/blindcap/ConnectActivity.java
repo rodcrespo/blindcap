@@ -1,29 +1,46 @@
 package com.eys.blindcap;
 
 import android.Manifest;
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.*;
 import com.eys.ble.BLEDeviceListAdapter;
 import com.eys.ble.BluetoothHandler;
 
+
 public class ConnectActivity extends Activity {
 
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
-    private Button scanButton;
+    private ImageButton scanButton;
     private ListView bleDeviceListView;
     private BLEDeviceListAdapter listViewAdapter;
 
     private BluetoothHandler bluetoothHandler;
     private boolean isConnected;
+
+    private ViewGroup contentView;
+    private ViewGroup connectView;
+
+    private Animation animScale;
+    private AnimatorSet animOpacity;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +65,24 @@ public class ConnectActivity extends Activity {
             }
         }
 
-        scanButton = (Button) findViewById(R.id.scanButton);
+        animScale = AnimationUtils.loadAnimation(this, R.anim.scale_anim);
+
+        contentView = (ViewGroup) findViewById(R.id.contentView);
+        connectView = (ViewGroup) findViewById(R.id.connectingView);
+
+        scanButton = (ImageButton) findViewById(R.id.scanButton);
+        scanButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    v.startAnimation(animScale);
+                    scanOnClick();
+                    return true;
+                }
+                return false;
+            }
+        });
+
         bleDeviceListView = (ListView) findViewById(R.id.bleDeviceListView);
         listViewAdapter = new BLEDeviceListAdapter(this);
 
@@ -59,16 +93,17 @@ public class ConnectActivity extends Activity {
 
         bluetoothHandler = new BluetoothHandler(this);
         bluetoothHandler.setOnConnectedListener(new BluetoothHandler.OnConnectedListener() {
-
             @Override
             public void onConnected(boolean isConnected) {
                 setConnectStatus(isConnected);
             }
         });
+
+        initConnectView();
     }
 
-    private BluetoothHandler.OnRecievedDataListener recListener = new BluetoothHandler.OnRecievedDataListener() {
 
+    private BluetoothHandler.OnRecievedDataListener recListener = new BluetoothHandler.OnRecievedDataListener() {
         @Override
         public void onRecievedData(byte[] bytes) {
             showMessage(bytes.toString());
@@ -77,8 +112,7 @@ public class ConnectActivity extends Activity {
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case PERMISSION_REQUEST_COARSE_LOCATION: {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -101,45 +135,14 @@ public class ConnectActivity extends Activity {
             }
         }
     }
-    public void scanOnClick(final View v){
-        showMessage("Start scan");
 
-        if(!isConnected){
-            bleDeviceListView.setAdapter(bluetoothHandler.getDeviceListAdapter());
-            bleDeviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view,
-                                        int position, long id) {
-                    String buttonText = (String) ((Button)v).getText();
-                    if(buttonText.equals("scanning")){
-                        showMessage("scanning...");
-                        return ;
-                    }
-                    BluetoothDevice device = bluetoothHandler.getDeviceListAdapter().getItem(position).device;
-                    // connect
-                    bluetoothHandler.connect(device.getAddress());
-                }
-            });
-            bluetoothHandler.setOnScanListener(new BluetoothHandler.OnScanListener() {
-                @Override
-                public void onScanFinished() {
-                    // TODO Auto-generated method stub
-                    ((Button)v).setText("scan");
-                    ((Button)v).setEnabled(true);
-                    showMessage("Scan Finished");
-                }
-                @Override
-                public void onScan(BluetoothDevice device, int rssi, byte[] scanRecord) {}
-            });
-            ((Button)v).setText("scanning");
-            ((Button)v).setEnabled(false);
-            bluetoothHandler.scanLeDevice(true);
-        }else{
-            showMessage("Already connected");
-            setConnectStatus(false);
-        }
+    public void scanOnClick(){
+        //showMessage("Start scan");
+
+        showConnectView();
     }
+
 
     public void ledOnClick(final View v){
         if(isConnected){
@@ -149,6 +152,7 @@ public class ConnectActivity extends Activity {
             showMessage("Need to connect first");
         }
     }
+
 
     public void ledOffClick(final View v){
 
@@ -160,28 +164,33 @@ public class ConnectActivity extends Activity {
         }
     }
 
+
     public void setConnectStatus(boolean isConnected){
         this.isConnected = isConnected;
-        if(isConnected){
+        if (isConnected) {
             showMessage("Connection successful");
-            scanButton.setText("break");
-        }else{
+
+            goToNextActivity();
+        } else {
             bluetoothHandler.onPause();
             bluetoothHandler.onDestroy();
-            scanButton.setText("scan");
+
+            showMessage("Connection failed");
+
+            exitConnectView();
         }
     }
+
 
     private void showMessage(String str){
         Toast.makeText(ConnectActivity.this, str, Toast.LENGTH_SHORT).show();
     }
 
 
-    public void nextView(View view) {
+    public void goToNextActivity() {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
-
 
     @Override
     public void onDestroy(){
@@ -189,16 +198,141 @@ public class ConnectActivity extends Activity {
         bluetoothHandler.onDestroy();
     }
 
+
     @Override
     public void onResume(){
         super.onResume();
         bluetoothHandler.onResume();
     }
 
+
     @Override
     public void onPause(){
         super.onPause();
         bluetoothHandler.onPause();
     }
+
+
+    private void initConnectView() {
+        Typeface fontMedium = Typeface.createFromAsset(getAssets(), "font/SamsungSharpSans-Medium.ttf");
+        setFonts(connectView, fontMedium);
+
+        // text animation
+        animOpacity = (AnimatorSet) AnimatorInflater.loadAnimator(this, R.animator.connecting_animation);
+        animOpacity.setTarget(findViewById(R.id.connectingText));
+        animOpacity.start();
+
+        // hide
+        connectView.setVisibility(View.GONE);
+    }
+
+
+    private void showConnectView() {
+        Command startScanning = new Command() {
+            @Override
+            public void execute() {
+                if (!isConnected) {
+                    bluetoothHandler.setOnScanListener(new BluetoothHandler.OnScanListener() {
+                        @Override
+                        public void onScanFinished() {
+                            showMessage("Scan Finished");
+                            showDeviceList();
+
+                            // TODO: @Rodrigo: exit connecting view if we didn't find any devices
+                            // exitConnectView();
+                        }
+                        @Override
+                        public void onScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
+                        }
+                    });
+
+                    // start scanning
+                    bluetoothHandler.scanLeDevice(true);
+
+                } else {
+
+                    showMessage("Already connected");
+                    //setConnectStatus(false);
+                }
+            }
+        };
+
+        crossfade(contentView, connectView, startScanning);
+    }
+
+
+    private void exitConnectView(){
+        crossfade(connectView, contentView, null);
+
+        // TODO: @Rodrigo: resetear device list
+        // no se muy bien como resetear la lista creada con el adapter
+        // si me echas una mano con esto te lo agradezco :)
+    }
+
+
+    private void showDeviceList() {
+        bleDeviceListView.setAdapter(bluetoothHandler.getDeviceListAdapter());
+        bleDeviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                BluetoothDevice device = bluetoothHandler.getDeviceListAdapter().getItem(position).device;
+
+                // connect
+                bluetoothHandler.connect(device.getAddress());
+
+                // TODO: @Rodrigo: ocultar device list
+                // aqui me pasa lo mismo, no se muy bien como ocultar la lista creada con el adapter
+            }
+        });
+    }
+
+
+    // aux methods:
+
+
+    private void crossfade(final View viewOut, View viewIn, final Command callback) {
+        viewIn.setAlpha(0f);
+        viewIn.setVisibility(View.VISIBLE);
+        viewIn.animate()
+                .alpha(1f)
+                .setDuration(200)
+                .setListener(null);
+
+        viewOut.animate()
+                .alpha(0f)
+                .setDuration(200)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        viewOut.setVisibility(View.GONE);
+
+                        if (callback != null) {
+                            callback.execute();
+                        }
+                    }
+                });
+    }
+
+
+    private void setFonts(ViewGroup group, Typeface font) {
+        for (int i = 0; i < group.getChildCount(); i++) {
+            View child = group.getChildAt(i);
+            if (child instanceof ViewGroup) {
+                setFonts((ViewGroup) child, font);
+            }
+            else if (child instanceof TextView) {
+                ((TextView) child).setTypeface(font);
+            }
+        }
+    }
+
+
+
+    // a Command object is passed to crossfade() as a parameter
+    public interface Command {
+        void execute();
+    }
+
 }
 

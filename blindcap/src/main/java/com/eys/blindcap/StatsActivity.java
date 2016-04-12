@@ -146,13 +146,13 @@ public class StatsActivity extends Activity {
 
             if (i % 2 == 0) {
                 // align to right of container
-                LinearLayout.LayoutParams params =
-                        new LinearLayout.LayoutParams(
-                                LinearLayout.LayoutParams.WRAP_CONTENT,
-                                LinearLayout.LayoutParams.WRAP_CONTENT
-                        );
-                params.gravity = Gravity.RIGHT;
-                item.setLayoutParams(params);
+//                LinearLayout.LayoutParams params =
+//                        new LinearLayout.LayoutParams(
+//                                LinearLayout.LayoutParams.WRAP_CONTENT,
+//                                LinearLayout.LayoutParams.WRAP_CONTENT
+//                        );
+//                params.gravity = Gravity.RIGHT;
+//                item.setLayoutParams(params);
 
                 leftColumn.addView(item);
             } else {

@@ -55,7 +55,6 @@ public class MainActivity extends Activity implements View.OnTouchListener {
     private LapDataList lapDataList = new LapDataList();
 
     // debug only
-    private Toast toast;
     private ImageButton buttonMenu;
 
     Typeface fontRegular;
@@ -96,9 +95,10 @@ public class MainActivity extends Activity implements View.OnTouchListener {
     }
 
 
-    private void clearData() {
-        timeSnapshots.clear();
-        lapDataList.clear();
+    @Override
+    public void onPause(){
+        super.onPause();
+        stopTimer();
     }
 
 
@@ -261,6 +261,12 @@ public class MainActivity extends Activity implements View.OnTouchListener {
     }
 
 
+    private void clearData() {
+        timeSnapshots.clear();
+        lapDataList.clear();
+    }
+
+
     public void goToStats() {
         refreshLapData();
 
@@ -284,14 +290,9 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         animOpacity.setTarget(turnButton);
         animOpacity.start();
 
-        // TODO: send bluetooth signal
+        // TODO: @Rodrigo: send bluetooth signal
 
         takeTimeSnapshot();
-
-        // debug
-//        if (toast != null) toast.cancel();
-//        toast = Toast.makeText(this, "Turn!", Toast.LENGTH_SHORT);
-//        toast.show();
     }
 
 
