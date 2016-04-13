@@ -269,8 +269,7 @@ public class ConnectActivity extends Activity {
                             }
                         }
                         @Override
-                        public void onScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
-                        }
+                        public void onScan(BluetoothDevice device, int rssi, byte[] scanRecord) {}
                     });
 
                     // start scanning
@@ -280,6 +279,8 @@ public class ConnectActivity extends Activity {
 
                     showMessage("Already connected");
                     //setConnectStatus(false);
+
+                    goToNextActivity();
                 }
             }
         };
