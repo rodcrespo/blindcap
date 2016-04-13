@@ -12,18 +12,36 @@
         android:textColor="@color/colorPrimary"
         android:textSize="18dp"
         android:layout_marginRight="15dp"/>
-    <ImageView
+
+    <FrameLayout
         android:id="@+id/progressBar"
         android:layout_width="match_parent"
         android:layout_height="8dp"
-        android:background="@drawable/best_lap_bar_grey"
         android:layout_marginTop="6dp"
-        android:layout_toRightOf="@id/lapNumber"/>
+        android:layout_toRightOf="@id/lapNumber"
+        android:background="@drawable/best_lap_bar_grey"
+        android:backgroundTint="@color/colorDarkGrey">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal"
+            android:weightSum="1">
+            <ImageView
+                android:id="@+id/progressBar_bar"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.2"
+                android:src="@drawable/best_lap_bar_grey"
+                android:tint="@color/colorPrimary"/>
+        </LinearLayout>
+        <include layout="@layout/item_best_lap_bar_separators"/>
+    </FrameLayout>
+
     <TextView
         android:id="@+id/lapTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="TIME --:--:--"
+        android:text="TIME -- -- --"
         android:textColor="@color/colorLightGrey"
         android:textSize="14dp"
         android:layout_marginTop="2dp"

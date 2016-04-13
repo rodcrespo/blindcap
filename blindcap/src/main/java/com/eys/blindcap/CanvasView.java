@@ -23,8 +23,8 @@ public class CanvasView extends View {
     private Paint paintGreyText;
     private Paint paintBlueStroke;
 
-    private final float heightMin = toPx(30);
-    private final float heightMax = toPx(100);
+    private final float heightMin = toPx(23);
+    private final float heightMax = toPx(90);
     private final float heightRange = heightMax - heightMin;
 
 
@@ -52,7 +52,7 @@ public class CanvasView extends View {
         paintGreyText.setAntiAlias(true);
         paintGreyText.setColor(0xff5e5e5e);
         paintGreyText.setStyle(Paint.Style.FILL);
-        paintGreyText.setTextSize(toPx(10));
+        paintGreyText.setTextSize(toPx(8));
     }
 
 
@@ -94,7 +94,7 @@ public class CanvasView extends View {
 
         final float stepWidth = canvasWidth / numLaps;
 
-        final float textY = canvasHeight - toPx(10);
+        final float textY = canvasHeight - toPx(8);
         final float textOffset = stepWidth / 2 + toPx(6);
 
         // start path

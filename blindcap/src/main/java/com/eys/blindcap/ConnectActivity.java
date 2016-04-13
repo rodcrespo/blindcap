@@ -28,7 +28,10 @@ import com.eys.ble.BluetoothHandler;
 public class ConnectActivity extends Activity {
 
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
+
     private ImageButton scanButton;
+
+    private View bleDeviceListHolder;
     private ListView bleDeviceListView;
     private BLEDeviceListAdapter listViewAdapter;
 
@@ -83,7 +86,10 @@ public class ConnectActivity extends Activity {
             }
         });
 
-        bleDeviceListView = (ListView) findViewById(R.id.bleDeviceListView);
+        bleDeviceListHolder = findViewById(R.id.bleDeviceListHolder);
+        bleDeviceListHolder.setVisibility(View.GONE);
+
+        bleDeviceListView = (ListView) bleDeviceListHolder.findViewById(R.id.bleDeviceListView);
         listViewAdapter = new BLEDeviceListAdapter(this);
 
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
@@ -96,6 +102,20 @@ public class ConnectActivity extends Activity {
             @Override
             public void onConnected(boolean isConnected) {
                 setConnectStatus(isConnected);
+            }
+        });
+
+        bleDeviceListView.setAdapter(bluetoothHandler.getDeviceListAdapter());
+        bleDeviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                BluetoothDevice device = bluetoothHandler.getDeviceListAdapter().getItem(position).device;
+
+                // connect
+                bluetoothHandler.connect(device.getAddress());
+
+                hideDeviceList();
             }
         });
 
@@ -168,7 +188,7 @@ public class ConnectActivity extends Activity {
     public void setConnectStatus(boolean isConnected){
         this.isConnected = isConnected;
         if (isConnected) {
-            showMessage("Connection successful");
+            //showMessage("Connection successful");
 
             goToNextActivity();
         } else {
@@ -188,6 +208,8 @@ public class ConnectActivity extends Activity {
 
 
     public void goToNextActivity() {
+        exitConnectView();
+
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
@@ -235,11 +257,16 @@ public class ConnectActivity extends Activity {
                     bluetoothHandler.setOnScanListener(new BluetoothHandler.OnScanListener() {
                         @Override
                         public void onScanFinished() {
-                            showMessage("Scan Finished");
+                            //showMessage("Scan Finished");
+
                             showDeviceList();
 
-                            // TODO: @Rodrigo: exit connecting view if we didn't find any devices
-                            // exitConnectView();
+                            // exit connecting view if no devices were found
+                            if (bluetoothHandler.getDeviceListAdapter().getCount() == 0) {
+                                exitConnectView();
+
+                                showMessage("No devices found");
+                            }
                         }
                         @Override
                         public void onScan(BluetoothDevice device, int rssi, byte[] scanRecord) {
@@ -264,27 +291,16 @@ public class ConnectActivity extends Activity {
     private void exitConnectView(){
         crossfade(connectView, contentView, null);
 
-        // TODO: @Rodrigo: resetear device list
-        // no se muy bien como resetear la lista creada con el adapter
-        // si me echas una mano con esto te lo agradezco :)
+        hideDeviceList();
     }
 
 
     private void showDeviceList() {
-        bleDeviceListView.setAdapter(bluetoothHandler.getDeviceListAdapter());
-        bleDeviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        bleDeviceListHolder.setVisibility(View.VISIBLE);
+    }
 
-                BluetoothDevice device = bluetoothHandler.getDeviceListAdapter().getItem(position).device;
-
-                // connect
-                bluetoothHandler.connect(device.getAddress());
-
-                // TODO: @Rodrigo: ocultar device list
-                // aqui me pasa lo mismo, no se muy bien como ocultar la lista creada con el adapter
-            }
-        });
+    private void hideDeviceList() {
+        bleDeviceListHolder.setVisibility(View.GONE);
     }
 
 

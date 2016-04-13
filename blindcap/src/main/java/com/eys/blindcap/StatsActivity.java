@@ -4,12 +4,15 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -92,22 +95,37 @@ public class StatsActivity extends Activity {
         for (int i = 0; i < numItems; i++) {
             String lapIndexText;
             String lapTimeText;
+            long lapMillis;
 
             if (i < numLaps) {
                 LapData lapData = sortedLapData.get(i);
                 int lapIndex = lapData.getIndex();
-                long lapMillis = lapData.getMillis();
+                lapMillis = lapData.getMillis();
 
                 lapIndexText = "L" + lapIndex;
                 lapTimeText = "TIME " + new TimeData(lapMillis).getString();
             } else {
                 lapIndexText = "--";
                 lapTimeText = "TIME -- -- --";
+                lapMillis = 0;
             }
 
+            // set text
             ViewGroup item = (ViewGroup) getLayoutInflater().inflate(R.layout.item_best_lap, container, false);
             ((TextView) item.findViewById(R.id.lapNumber)).setText(lapIndexText);
             ((TextView) item.findViewById(R.id.lapTime)).setText(lapTimeText);
+
+            // set bar width
+            // percentage calculated over the slowest lap time
+            float slowestLapTime = sortedLapData.get(numLaps-1).getMillis();
+            float pct = ((float)(lapMillis)) / slowestLapTime;
+
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    0,
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    pct);
+
+            item.findViewById(R.id.progressBar_bar).setLayoutParams(params);
 
             container.addView(item);
         }
@@ -165,8 +183,9 @@ public class StatsActivity extends Activity {
 
 
     private void closeStats() {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
+//        Intent intent = new Intent(this, MainActivity.class);
+//        startActivity(intent);
+        finish();
     }
 
 

@@ -102,8 +102,8 @@
             android:layout_width="180dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="40dp"
-            android:layout_marginBottom="50dp"
+            android:layout_marginTop="50dp"
+            android:layout_marginBottom="60dp"
             android:src="@drawable/phone_and_gear"
             android:adjustViewBounds="true"/>
 
@@ -121,13 +121,23 @@
 
     <!-- Device List -->
 
-    <ListView
-        android:id="@+id/bleDeviceListView"
-        android:layout_width="250dp"
-        android:layout_height="wrap_content"
-        android:background="@color/colorLightGrey"
-        android:layout_gravity="center">
-    </ListView>
+    <FrameLayout
+        android:id="@+id/bleDeviceListHolder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/background_gradient"
+            android:alpha="0.8"/>
+        <ListView
+            android:id="@+id/bleDeviceListView"
+            android:layout_width="250dp"
+            android:layout_height="wrap_content"
+            android:background="@color/colorLightGrey"
+            android:layout_gravity="center">
+        </ListView>
+    </FrameLayout>
 
 </FrameLayout>
 
