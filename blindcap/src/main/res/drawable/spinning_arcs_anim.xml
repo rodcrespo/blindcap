@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="false">
+    <item android:drawable="@drawable/blue_circles_00149" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00150" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00151" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00152" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00153" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00154" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00155" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00156" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00157" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00158" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00159" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00160" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00161" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00117" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00118" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00119" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00120" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00121" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00122" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00123" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00124" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00125" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00126" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00127" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00128" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00129" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00130" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00131" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00132" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00133" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00134" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00135" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00136" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00137" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00138" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00139" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00140" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00141" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00142" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00143" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00144" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00145" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00146" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00147" android:duration="@integer/circle_animation_duration" />
+    <item android:drawable="@drawable/blue_circles_00148" android:duration="@integer/circle_animation_duration" />
+</animation-list>

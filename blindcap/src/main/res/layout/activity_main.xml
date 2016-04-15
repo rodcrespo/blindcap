@@ -16,7 +16,7 @@
 
         <!-- Turn button -->
 
-        <RelativeLayout
+        <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true">
@@ -25,9 +25,17 @@
                 android:id="@+id/circlesImage"
                 android:src="@drawable/circles_turn"
                 android:adjustViewBounds="true"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"/>
+                android:layout_width="330dp"
+                android:layout_height="330dp"
+                android:layout_gravity="center"/>
+
+            <ImageView
+                android:id="@+id/arcsAnimation"
+                android:layout_width="330dp"
+                android:layout_height="330dp"
+                android:layout_gravity="center"
+                android:adjustViewBounds="true"/>
+                <!--android:backgroundTint="@android:color/holo_red_dark"/>-->
 
             <Button
                 android:id="@+id/turnButton"
@@ -35,8 +43,8 @@
                 android:alpha="0"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:layout_centerInParent="true"/>
-        </RelativeLayout>
+                android:layout_gravity="center"/>
+        </FrameLayout>
 
         <!-- Timer -->
 

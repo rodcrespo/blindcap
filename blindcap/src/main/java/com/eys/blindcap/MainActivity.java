@@ -7,6 +7,7 @@ import android.animation.AnimatorSet;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Typeface;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -16,6 +17,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -38,6 +40,9 @@ public class MainActivity extends Activity implements View.OnTouchListener {
     private TextView helpButton;
 
     private boolean menuIsOpen;
+
+    ImageView frameAnimationHolder;
+    AnimationDrawable frameAnimation;
 
     // animation
     private Animation animScale;
@@ -123,7 +128,12 @@ public class MainActivity extends Activity implements View.OnTouchListener {
     private void initTurnButton() {
         turnButton.setOnTouchListener(this);
 
-        //TODO: setup circles animation
+        frameAnimationHolder = (ImageView) findViewById(R.id.arcsAnimation);
+        frameAnimationHolder.setBackgroundResource(R.drawable.spinning_arcs_anim);
+        frameAnimationHolder.setVisibility(View.GONE);
+        frameAnimationHolder.setAlpha(0f);
+
+        frameAnimation = (AnimationDrawable) frameAnimationHolder.getBackground();
     }
 
 
@@ -184,6 +194,8 @@ public class MainActivity extends Activity implements View.OnTouchListener {
 
         // TODO: this should be explicitly performed by tapping a "reset" button (currently not present)
         clearData();
+
+        startArcsAnimation();
     }
 
 
@@ -199,6 +211,8 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         handler.removeCallbacks(timerRunable);
 
         isTimerRunning = false;
+
+        stopArcsAnimation();
     }
 
 
@@ -232,8 +246,6 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         if (!isTimerRunning) {
             return;
         }
-
-        Log.d("KXS", "SNAPSHOT!");
 
         int numSnapshots = timeSnapshots.size();
 
@@ -278,6 +290,32 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         intent.putExtras(bundle);
 
         startActivity(intent);
+    }
+
+
+    private void startArcsAnimation() {
+        //frameAnimation.selectDrawable(0);
+        frameAnimation.start();
+
+        frameAnimationHolder.setVisibility(View.VISIBLE);
+        frameAnimationHolder.animate()
+                .alpha(1f)
+                .setDuration(200)
+                .setListener(null);
+    }
+
+
+    private void stopArcsAnimation() {
+        frameAnimationHolder.animate()
+                .alpha(0f)
+                .setDuration(300)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        frameAnimation.stop();
+                        frameAnimationHolder.setVisibility(View.GONE);
+                    }
+                });
     }
 
 
