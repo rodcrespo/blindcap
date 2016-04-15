@@ -18,6 +18,8 @@
             android:adjustViewBounds="true"
             android:src="@drawable/logo_samsung_intro"/>
 
+
+
         <ImageButton
             android:id="@+id/scanButton"
             android:layout_width="wrap_content"

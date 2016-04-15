@@ -22,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.eys.ble.BluetoothHandler;
 
 import java.util.ArrayList;
 
@@ -64,6 +65,10 @@ public class MainActivity extends Activity implements View.OnTouchListener {
 
     Typeface fontRegular;
 
+    // Bluetooth
+    private BluetoothHandler bluetoothHandler;
+    private boolean beaconOn = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +89,8 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         animOpacity = (AnimatorSet) AnimatorInflater.loadAnimator(this, R.animator.opacity_anim);
 
         fontRegular = Typeface.createFromAsset(getAssets(), "font/SamsungSharpSans-Regular.ttf");
+        bluetoothHandler = BluetoothHandler.getInstance();
+//        bluetoothHandler.init(this);
     }
 
 
@@ -328,7 +335,18 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         animOpacity.setTarget(turnButton);
         animOpacity.start();
 
-        // TODO: @Rodrigo: send bluetooth signal
+        if(bluetoothHandler.isConnected()){
+            if(!beaconOn) {
+                bluetoothHandler.sendData(new byte[]{1});
+                showMessage("Led ON");
+            } else{
+                bluetoothHandler.sendData(new byte[]{0});
+                showMessage("Led OFF");
+            }
+            beaconOn = !beaconOn;
+        }else{
+            showMessage("Need to connect first");
+        }
 
         takeTimeSnapshot();
     }
@@ -405,5 +423,9 @@ public class MainActivity extends Activity implements View.OnTouchListener {
             }
         }
         return true;
+    }
+
+    private void showMessage(String str){
+        Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
     }
 }

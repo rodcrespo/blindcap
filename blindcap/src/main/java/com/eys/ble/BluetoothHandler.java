@@ -49,6 +49,18 @@ public class BluetoothHandler {
     private BluetoothGattCharacteristic targetGattCharacteristic = null;
     
     private Context context;
+
+    private boolean isConnected = false;
+
+	private static BluetoothHandler INSTANCE = new BluetoothHandler();
+
+	// El constructor privado no permite que se genere un constructor por defecto.
+	// (con mismo modificador de acceso que la definición de la clase)
+	private BluetoothHandler() {}
+
+	public static BluetoothHandler getInstance() {
+		return INSTANCE;
+	}
 	
     public interface OnRecievedDataListener{
     	public void onRecievedData(byte[] bytes);
@@ -67,7 +79,7 @@ public class BluetoothHandler {
     	onScanListener = l;
     }
     
-	public BluetoothHandler(Context context) {
+	public void init(Context context) {
 		// TODO Auto-generated constructor stub
 		this.context = context;
 		mDevListAdapter = new BLEDeviceListAdapter(context);
@@ -251,6 +263,9 @@ public class BluetoothHandler {
 	}
 	
 	public synchronized void sendData(byte[] value){
+        Log.i("gatt", Boolean.toString(targetGattCharacteristic != null));
+        Log.i("leservice", Boolean.toString(mBluetoothLeService != null));
+        Log.i("connected", Boolean.toString(mConnected == true));
     	if(targetGattCharacteristic != null && mBluetoothLeService != null && mConnected == true){
     		int targetLen = 0;
     		int offset=0;
@@ -395,5 +410,13 @@ public class BluetoothHandler {
     		double accuracy =  (0.89976)*Math.pow(ratio,7.7095) + 0.111;    
     		return accuracy;
     	}
-    }  
+    }
+
+    public boolean isConnected(){
+        return isConnected;
+    }
+
+    public void setIsConnected(boolean newConnected){
+        this.isConnected = newConnected;
+    }
 }

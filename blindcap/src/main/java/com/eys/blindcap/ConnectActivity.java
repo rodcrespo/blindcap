@@ -36,7 +36,6 @@ public class ConnectActivity extends Activity {
     private BLEDeviceListAdapter listViewAdapter;
 
     private BluetoothHandler bluetoothHandler;
-    private boolean isConnected;
 
     private ViewGroup contentView;
     private ViewGroup connectView;
@@ -97,7 +96,8 @@ public class ConnectActivity extends Activity {
             finish();
         }
 
-        bluetoothHandler = new BluetoothHandler(this);
+        bluetoothHandler = BluetoothHandler.getInstance();
+        bluetoothHandler.init(this);
         bluetoothHandler.setOnConnectedListener(new BluetoothHandler.OnConnectedListener() {
             @Override
             public void onConnected(boolean isConnected) {
@@ -165,7 +165,7 @@ public class ConnectActivity extends Activity {
 
 
     public void ledOnClick(final View v){
-        if(isConnected){
+        if(bluetoothHandler.isConnected()){
             bluetoothHandler.sendData(new byte[]{1});
             showMessage("Led ON");
         }else{
@@ -176,7 +176,7 @@ public class ConnectActivity extends Activity {
 
     public void ledOffClick(final View v){
 
-        if(isConnected){
+        if(bluetoothHandler.isConnected()){
             bluetoothHandler.sendData(new byte[]{0});
             showMessage("Led OFF");
         }else{
@@ -186,7 +186,7 @@ public class ConnectActivity extends Activity {
 
 
     public void setConnectStatus(boolean isConnected){
-        this.isConnected = isConnected;
+        bluetoothHandler.setIsConnected(isConnected);
         if (isConnected) {
             //showMessage("Connection successful");
 
@@ -231,7 +231,8 @@ public class ConnectActivity extends Activity {
     @Override
     public void onPause(){
         super.onPause();
-        bluetoothHandler.onPause();
+        //TODO action pending depending on app flow
+//        bluetoothHandler.onPause();
     }
 
 
@@ -253,7 +254,7 @@ public class ConnectActivity extends Activity {
         Command startScanning = new Command() {
             @Override
             public void execute() {
-                if (!isConnected) {
+                if (!bluetoothHandler.isConnected()) {
                     bluetoothHandler.setOnScanListener(new BluetoothHandler.OnScanListener() {
                         @Override
                         public void onScanFinished() {
