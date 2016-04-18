@@ -220,7 +220,7 @@ public class ConnectActivity extends Activity {
                 connecting = true;
                 BluetoothDevice device = bluetoothHandler.getDeviceListAdapter().getItem(position).device;
                 bluetoothHandler.connect(device.getAddress());
-
+                listViewAdapter.clearDevice();
                 hideDeviceList();
             }
         });

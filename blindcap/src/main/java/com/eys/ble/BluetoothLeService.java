@@ -221,6 +221,7 @@ public class BluetoothLeService extends Service {
             Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
             if (mBluetoothGatt.connect()) {
                 mConnectionState = STATE_CONNECTING;
+                BluetoothHandler.getInstance().reconnecting = false;
                 return true;
             } else {
                 return false;

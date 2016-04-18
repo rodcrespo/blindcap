@@ -72,7 +72,6 @@ public class MainActivity extends Activity implements View.OnTouchListener {
     // Bluetooth
     private BluetoothHandler bluetoothHandler;
     private boolean beaconOn = false;
-    private boolean reconnecting = false;
     private Runnable reconnectionRunnable;
     private Runnable vibrationRunnable;
 
@@ -97,6 +96,7 @@ public class MainActivity extends Activity implements View.OnTouchListener {
 
         fontRegular = Typeface.createFromAsset(getAssets(), "font/SamsungSharpSans-Regular.ttf");
         bluetoothHandler = BluetoothHandler.getInstance();
+        bluetoothHandler.setContext(this);
 
         reconnectionRunnable = new Runnable() {
             @Override
@@ -117,13 +117,13 @@ public class MainActivity extends Activity implements View.OnTouchListener {
     }
 
     public void reconnect(){
-        if (!bluetoothHandler.isConnected() && !reconnecting) {
-            reconnecting = true;
+        if (!bluetoothHandler.isConnected() && !bluetoothHandler.reconnecting) {
+            bluetoothHandler.reconnecting = true;
             showMessage("Trying to reconnect");
-            bluetoothHandler.reconnect(getMainActivity());
+            bluetoothHandler.reconnect();
         }
         handler.removeCallbacks(reconnectionRunnable);
-        handler.postDelayed(reconnectionRunnable, reconnecting ? 5000 : 1000);
+        handler.postDelayed(reconnectionRunnable, bluetoothHandler.reconnecting ? 2500 : 1000);
     }
 
     public MainActivity getMainActivity(){
@@ -411,10 +411,7 @@ public class MainActivity extends Activity implements View.OnTouchListener {
             handler.postDelayed(vibrationRunnable, 3000);
         }
     }
-
-    public void setReconnecting(boolean status){
-        this.reconnecting = status;
-    }
+    
 
     private void onTimerClick() {
         startButton.startAnimation(animScale);

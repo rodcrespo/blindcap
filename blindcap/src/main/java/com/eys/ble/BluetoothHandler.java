@@ -55,6 +55,7 @@ public class BluetoothHandler {
     private Context context;
 
     private boolean isConnected = false;
+    public boolean reconnecting = false;
 
 	private static BluetoothHandler INSTANCE = new BluetoothHandler();
 
@@ -82,7 +83,11 @@ public class BluetoothHandler {
     public void setOnScanListener(OnScanListener l){
     	onScanListener = l;
     }
-    
+
+    public void setContext(Activity activity){
+        this.context = activity;
+    }
+
 	public void init(Context context) {
 		// TODO Auto-generated constructor stub
 		this.context = context;
@@ -164,13 +169,13 @@ public class BluetoothHandler {
         }
     };
 
-    public void reconnect(final MainActivity activity){
-        activity.setReconnecting(true);
+    public void reconnect(){
+        reconnecting = true;
         mBluetoothLeService.disconnect();
         setOnScanListener(new BluetoothHandler.OnScanListener() {
             @Override
             public void onScanFinished() {
-                activity.setReconnecting(false);
+
                 mBluetoothLeService.connect(mDeviceAddress);
             }
             @Override
