@@ -5,6 +5,7 @@ import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
@@ -65,17 +66,22 @@ public class MainActivity extends Activity implements View.OnTouchListener {
 
     Typeface fontRegular;
 
+
+    private Context mContext;
+
     // Bluetooth
     private BluetoothHandler bluetoothHandler;
     private boolean beaconOn = false;
     private boolean reconnecting = false;
-
+    private Runnable reconnectionRunnable;
+    private Runnable vibrationRunnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mContext = this;
         content = (RelativeLayout) findViewById(R.id.content);
         startButton = (Button) findViewById(R.id.startButton);
         digits = (LinearLayout) findViewById(R.id.timerDigits);
@@ -91,7 +97,37 @@ public class MainActivity extends Activity implements View.OnTouchListener {
 
         fontRegular = Typeface.createFromAsset(getAssets(), "font/SamsungSharpSans-Regular.ttf");
         bluetoothHandler = BluetoothHandler.getInstance();
-//        bluetoothHandler.init(this);
+
+        reconnectionRunnable = new Runnable() {
+            @Override
+            public void run() {
+                Log.i("Runnable", "Reconnection runnable running");
+                reconnect();
+            }
+        };
+
+        vibrationRunnable = new Runnable() {
+            @Override
+            public void run() {
+                Log.i("Runnable", "Turn runnable running");
+                stopVibration();
+            }
+        };
+
+    }
+
+    public void reconnect(){
+        if (!bluetoothHandler.isConnected() && !reconnecting) {
+            reconnecting = true;
+            showMessage("Trying to reconnect");
+            bluetoothHandler.reconnect(getMainActivity());
+        }
+        handler.removeCallbacks(reconnectionRunnable);
+        handler.postDelayed(reconnectionRunnable, reconnecting ? 5000 : 1000);
+    }
+
+    public MainActivity getMainActivity(){
+        return this;
     }
 
 
@@ -105,13 +141,31 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         initStopWatch();
         initTurnButton();
         initMenu();
+        handler.postDelayed(reconnectionRunnable, 1000);
+
     }
+
 
 
     @Override
     public void onPause(){
         super.onPause();
         stopTimer();
+        handler.removeCallbacks(reconnectionRunnable);
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        handler.removeCallbacks(reconnectionRunnable);
+        bluetoothHandler.onDestroy();
+    }
+
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        handler.postDelayed(reconnectionRunnable, 1000);
     }
 
 
@@ -336,24 +390,26 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         animOpacity.setTarget(turnButton);
         animOpacity.start();
 
-        if(bluetoothHandler.isConnected()){
-            if(!beaconOn) {
-                bluetoothHandler.sendData(new byte[]{1});
-                showMessage("Led ON");
-            } else{
-                bluetoothHandler.sendData(new byte[]{0});
-                showMessage("Led OFF");
-            }
-            beaconOn = !beaconOn;
-        }else{
-            if (!reconnecting) {
-                reconnecting = true;
-                showMessage("Trying to reconnect");
-                bluetoothHandler.reconnect(this);
-            }
-        }
+        startVibration();
 
         takeTimeSnapshot();
+    }
+
+    private void stopVibration(){
+        if(bluetoothHandler.isConnected() && beaconOn){
+            bluetoothHandler.sendData(new byte[]{0});
+            showMessage("Led OFF");
+            beaconOn = false;
+        }
+    }
+
+    private void startVibration(){
+        if(bluetoothHandler.isConnected() && !beaconOn){
+            bluetoothHandler.sendData(new byte[]{1});
+            showMessage("Led ON");
+            beaconOn = true;
+            handler.postDelayed(vibrationRunnable, 3000);
+        }
     }
 
     public void setReconnecting(boolean status){

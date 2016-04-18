@@ -40,13 +40,16 @@ public class BluetoothHandler {
 	private OnConnectedListener onConnectedListener;
 	private OnScanListener onScanListener;
 	
-	private List<BluetoothGattService> gattServices = null; 
+	private List<BluetoothGattService> gattServices = null;
 	private UUID targetServiceUuid =
-            UUID.fromString("629a0c20-0418-d8bc-e411-22a2d08a13fa");
+			UUID.fromString("969c692e-9cc2-4f99-8e70-c5a844400451");
+//            UUID.fromString("629a0c20-0418-d8bc-e411-22a2d08a13fa");
     private UUID targetCharacterUuid =
-            UUID.fromString("fa138a01-a222-11e4-bcd8-1804200c9a62");
+		UUID.fromString("969c692e-9cc2-4f99-8e70-c5a844400451");
+//            UUID.fromString("fa138a01-a222-11e4-bcd8-1804200c9a62");
     private UUID readUUID =
-            UUID.fromString("fa138a01-a222-11e4-bcd8-1804200c9a62");
+		UUID.fromString("969c692e-9cc2-4f99-8e70-c5a844400451");
+//            UUID.fromString("fa138a01-a222-11e4-bcd8-1804200c9a62");
     private BluetoothGattCharacteristic targetGattCharacteristic = null;
     
     private Context context;
@@ -83,6 +86,15 @@ public class BluetoothHandler {
 	public void init(Context context) {
 		// TODO Auto-generated constructor stub
 		this.context = context;
+
+        if (mConnected){
+            ((Activity) context).unbindService(mServiceConnection);
+            mBluetoothLeService.disconnect();
+        }
+        mBluetoothLeService = null;
+        mConnected = false;
+
+        this.isConnected = false;
 		mDevListAdapter = new BLEDeviceListAdapter(context);
 		mBluetoothAdapter = null;
 		mCurrentConnectedBLEAddr = null;
@@ -153,6 +165,7 @@ public class BluetoothHandler {
     };
 
     public void reconnect(final MainActivity activity){
+        activity.setReconnecting(true);
         mBluetoothLeService.disconnect();
         setOnScanListener(new BluetoothHandler.OnScanListener() {
             @Override
@@ -185,7 +198,6 @@ public class BluetoothHandler {
                 Log.e("onServiceDisconnected", "Other Service disconnected");
                 mConnected = false;
                 setIsConnected(false);
-
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
             	if(mBluetoothLeService != null)
             		getCharacteristic(mBluetoothLeService.getSupportedGattServices());
