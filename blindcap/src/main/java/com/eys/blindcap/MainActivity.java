@@ -68,6 +68,7 @@ public class MainActivity extends Activity implements View.OnTouchListener {
     // Bluetooth
     private BluetoothHandler bluetoothHandler;
     private boolean beaconOn = false;
+    private boolean reconnecting = false;
 
 
     @Override
@@ -345,12 +346,19 @@ public class MainActivity extends Activity implements View.OnTouchListener {
             }
             beaconOn = !beaconOn;
         }else{
-            showMessage("Need to connect first");
+            if (!reconnecting) {
+                reconnecting = true;
+                showMessage("Trying to reconnect");
+                bluetoothHandler.reconnect(this);
+            }
         }
 
         takeTimeSnapshot();
     }
 
+    public void setReconnecting(boolean status){
+        this.reconnecting = status;
+    }
 
     private void onTimerClick() {
         startButton.startAnimation(animScale);

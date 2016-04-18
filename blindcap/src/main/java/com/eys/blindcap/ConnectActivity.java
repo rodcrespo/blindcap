@@ -111,8 +111,6 @@ public class ConnectActivity extends Activity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 BluetoothDevice device = bluetoothHandler.getDeviceListAdapter().getItem(position).device;
-
-                // connect
                 bluetoothHandler.connect(device.getAddress());
 
                 hideDeviceList();
@@ -188,8 +186,6 @@ public class ConnectActivity extends Activity {
     public void setConnectStatus(boolean isConnected){
         bluetoothHandler.setIsConnected(isConnected);
         if (isConnected) {
-            //showMessage("Connection successful");
-
             goToNextActivity();
         } else {
             bluetoothHandler.onPause();
