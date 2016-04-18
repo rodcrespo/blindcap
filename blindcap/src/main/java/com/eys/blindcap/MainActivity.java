@@ -137,6 +137,7 @@ public class MainActivity extends Activity implements View.OnTouchListener {
 
     public void reconnect(){
         if (!bluetoothHandler.isConnected() && !bluetoothHandler.reconnecting) {
+            beaconOn = false;
             Log.i("Runnable", "Trying to reconnect");
             bluetoothHandler.reconnecting = true;
             showMessage("Trying to reconnect");
