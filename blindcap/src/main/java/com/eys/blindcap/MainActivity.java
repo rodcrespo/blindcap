@@ -417,15 +417,19 @@ public class MainActivity extends Activity implements View.OnTouchListener {
     }
 
     private void stopVibration(){
-        if(bluetoothHandler.isConnected() && beaconOn){
+        Log.i("vibration", "stop vibration");
+        if(bluetoothHandler.isConnected() && !bluetoothHandler.reconnecting && beaconOn){
             bluetoothHandler.sendData(new byte[]{0});
+            Log.i("vibration", "send stop vibration");
             beaconOn = false;
         }
     }
 
     private void startVibration(){
-        if(bluetoothHandler.isConnected() && !beaconOn){
+        Log.i("vibration", "start vibration");
+        if(bluetoothHandler.isConnected() && !bluetoothHandler.reconnecting && !beaconOn){
             bluetoothHandler.sendData(new byte[]{1});
+            Log.i("vibration", "send start vibration");
             beaconOn = true;
             handler.postDelayed(vibrationRunnable, 3000);
         }
