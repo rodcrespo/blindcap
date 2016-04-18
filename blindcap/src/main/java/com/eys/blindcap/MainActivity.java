@@ -5,6 +5,7 @@ import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.app.Activity;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -73,6 +74,7 @@ public class MainActivity extends Activity implements View.OnTouchListener {
     private BluetoothHandler bluetoothHandler;
     private boolean beaconOn = false;
     private Runnable reconnectionRunnable;
+    private Runnable reconnectionHolderRunnable;
     private Runnable vibrationRunnable;
 
     @Override
@@ -97,6 +99,14 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         fontRegular = Typeface.createFromAsset(getAssets(), "font/SamsungSharpSans-Regular.ttf");
         bluetoothHandler = BluetoothHandler.getInstance();
         bluetoothHandler.setContext(this);
+        bluetoothHandler.setOnConnectedListener(new BluetoothHandler.OnConnectedListener() {
+            @Override
+            public void onConnected(boolean isConnected) {
+                bluetoothHandler.setIsConnected(isConnected);
+                showMessage("Reconnected successfully");
+            }
+        });
+
 
         reconnectionRunnable = new Runnable() {
             @Override
@@ -109,8 +119,17 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         vibrationRunnable = new Runnable() {
             @Override
             public void run() {
-                Log.i("Runnable", "Turn runnable running");
                 stopVibration();
+            }
+        };
+
+        reconnectionHolderRunnable = new Runnable() {
+            @Override
+            public void run() {
+                Log.i("Runnable", "Disable reconnection");
+                bluetoothHandler.reconnecting = false;
+                handler.removeCallbacks(reconnectionHolderRunnable);
+
             }
         };
 
@@ -118,8 +137,10 @@ public class MainActivity extends Activity implements View.OnTouchListener {
 
     public void reconnect(){
         if (!bluetoothHandler.isConnected() && !bluetoothHandler.reconnecting) {
+            Log.i("Runnable", "Trying to reconnect");
             bluetoothHandler.reconnecting = true;
             showMessage("Trying to reconnect");
+            handler.postDelayed(reconnectionHolderRunnable, 2000);
             bluetoothHandler.reconnect();
         }
         handler.removeCallbacks(reconnectionRunnable);
@@ -398,7 +419,6 @@ public class MainActivity extends Activity implements View.OnTouchListener {
     private void stopVibration(){
         if(bluetoothHandler.isConnected() && beaconOn){
             bluetoothHandler.sendData(new byte[]{0});
-            showMessage("Led OFF");
             beaconOn = false;
         }
     }
@@ -406,7 +426,6 @@ public class MainActivity extends Activity implements View.OnTouchListener {
     private void startVibration(){
         if(bluetoothHandler.isConnected() && !beaconOn){
             bluetoothHandler.sendData(new byte[]{1});
-            showMessage("Led ON");
             beaconOn = true;
             handler.postDelayed(vibrationRunnable, 3000);
         }
