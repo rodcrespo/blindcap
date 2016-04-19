@@ -117,7 +117,7 @@ public class StatsActivity extends Activity {
 
             // set bar width
             // percentage calculated over the slowest lap time
-            float slowestLapTime = sortedLapData.get(numLaps-1).getMillis();
+            float slowestLapTime = numLaps > 1 ? sortedLapData.get(numLaps-1).getMillis() : 0;
             float pct = ((float)(lapMillis)) / slowestLapTime;
 
             LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(

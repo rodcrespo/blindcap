@@ -365,16 +365,15 @@ public class MainActivity extends Activity implements View.OnTouchListener {
 
     public void goToStats() {
         refreshLapData();
-        if(lapDataList != null && time != null) {
-            Bundle bundle = new Bundle();
-            bundle.putParcelable("LAP_DATA_LIST", lapDataList); // time data of each lap
-            bundle.putLong("TOTAL_TIME", time.getMillis());     // total elapsed time
 
-            Intent intent = new Intent(this, StatsActivity.class);
-            intent.putExtras(bundle);
+        Bundle bundle = new Bundle();
+        bundle.putParcelable("LAP_DATA_LIST", lapDataList); // time data of each lap
+        bundle.putLong("TOTAL_TIME", time.getMillis());     // total elapsed time
 
-            startActivity(intent);
-        }
+        Intent intent = new Intent(this, StatsActivity.class);
+        intent.putExtras(bundle);
+
+        startActivity(intent);
     }
 
 
