@@ -35,6 +35,7 @@
                 android:layout_height="330dp"
                 android:layout_gravity="center"
                 android:adjustViewBounds="true"/>
+                <!--android:backgroundTintMode="src_atop"-->
                 <!--android:backgroundTint="@android:color/holo_red_dark"/>-->
 
             <Button
