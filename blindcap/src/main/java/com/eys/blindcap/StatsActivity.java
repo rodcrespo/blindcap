@@ -116,14 +116,16 @@ public class StatsActivity extends Activity {
             ((TextView) item.findViewById(R.id.lapTime)).setText(lapTimeText);
 
             // set bar width
-            // percentage calculated over the slowest lap time
-            float slowestLapTime = sortedLapData.get(numLaps-1).getMillis();
-            float pct = ((float)(lapMillis)) / slowestLapTime;
+            LinearLayout.LayoutParams params;
 
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
-                    0,
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    pct);
+            if (lapsData.size() > 0) {
+                // percentage calculated over the slowest lap time
+                float slowestLapTime = sortedLapData.get(numLaps - 1).getMillis();
+                float pct = ((float) (lapMillis)) / slowestLapTime;
+                params = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, pct);
+            } else {
+                params = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 0);
+            }
 
             item.findViewById(R.id.progressBar_bar).setLayoutParams(params);
 
