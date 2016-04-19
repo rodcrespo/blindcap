@@ -33,10 +33,11 @@ public class ConnectActivity extends Activity {
 
     private View bleDeviceListHolder;
     private ListView bleDeviceListView;
+    private ImageView bleDeviceOuter;
+
     private BLEDeviceListAdapter listViewAdapter;
 
     private BluetoothHandler bluetoothHandler;
-    private boolean isConnected;
 
     private ViewGroup contentView;
     private ViewGroup connectView;
@@ -44,83 +45,14 @@ public class ConnectActivity extends Activity {
     private Animation animScale;
     private AnimatorSet animOpacity;
 
+    private boolean connecting = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_connect);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            // Android M Permission check 
-            if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("This app needs location access");
-                builder.setMessage("Please grant location access so this app can detect beacons.");
-                builder.setPositiveButton(android.R.string.ok, null);
-                builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
-
-                    public void onDismiss(DialogInterface dialog) {
-                        requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_COARSE_LOCATION);
-                    }
-
-                });
-                builder.show();
-            }
-        }
-
-        animScale = AnimationUtils.loadAnimation(this, R.anim.scale_anim);
-
-        contentView = (ViewGroup) findViewById(R.id.contentView);
-        connectView = (ViewGroup) findViewById(R.id.connectingView);
-
-        scanButton = (ImageButton) findViewById(R.id.scanButton);
-        scanButton.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                    v.startAnimation(animScale);
-                    scanOnClick();
-                    return true;
-                }
-                return false;
-            }
-        });
-
-        bleDeviceListHolder = findViewById(R.id.bleDeviceListHolder);
-        bleDeviceListHolder.setVisibility(View.GONE);
-
-        bleDeviceListView = (ListView) bleDeviceListHolder.findViewById(R.id.bleDeviceListView);
-        listViewAdapter = new BLEDeviceListAdapter(this);
-
-        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
-            finish();
-        }
-
-        bluetoothHandler = new BluetoothHandler(this);
-        bluetoothHandler.setOnConnectedListener(new BluetoothHandler.OnConnectedListener() {
-            @Override
-            public void onConnected(boolean isConnected) {
-                setConnectStatus(isConnected);
-            }
-        });
-
-        bleDeviceListView.setAdapter(bluetoothHandler.getDeviceListAdapter());
-        bleDeviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                BluetoothDevice device = bluetoothHandler.getDeviceListAdapter().getItem(position).device;
-
-                // connect
-                bluetoothHandler.connect(device.getAddress());
-
-                hideDeviceList();
-            }
-        });
-
-        initConnectView();
+        init();
     }
+
 
 
     private BluetoothHandler.OnRecievedDataListener recListener = new BluetoothHandler.OnRecievedDataListener() {
@@ -165,7 +97,7 @@ public class ConnectActivity extends Activity {
 
 
     public void ledOnClick(final View v){
-        if(isConnected){
+        if(bluetoothHandler.isConnected()){
             bluetoothHandler.sendData(new byte[]{1});
             showMessage("Led ON");
         }else{
@@ -176,7 +108,7 @@ public class ConnectActivity extends Activity {
 
     public void ledOffClick(final View v){
 
-        if(isConnected){
+        if(bluetoothHandler.isConnected()){
             bluetoothHandler.sendData(new byte[]{0});
             showMessage("Led OFF");
         }else{
@@ -186,10 +118,8 @@ public class ConnectActivity extends Activity {
 
 
     public void setConnectStatus(boolean isConnected){
-        this.isConnected = isConnected;
+        bluetoothHandler.setIsConnected(isConnected);
         if (isConnected) {
-            //showMessage("Connection successful");
-
             goToNextActivity();
         } else {
             bluetoothHandler.onPause();
@@ -221,17 +151,104 @@ public class ConnectActivity extends Activity {
     }
 
 
+    public void init(){
+        setContentView(R.layout.activity_connect);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            // Android M Permission check 
+            if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("This app needs location access");
+                builder.setMessage("Please grant location access so this app can detect beacons.");
+                builder.setPositiveButton(android.R.string.ok, null);
+                builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+
+                    public void onDismiss(DialogInterface dialog) {
+                        requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_COARSE_LOCATION);
+                    }
+
+                });
+                builder.show();
+            }
+        }
+
+        animScale = AnimationUtils.loadAnimation(this, R.anim.scale_anim);
+
+        contentView = (ViewGroup) findViewById(R.id.contentView);
+        connectView = (ViewGroup) findViewById(R.id.connectingView);
+
+        scanButton = (ImageButton) findViewById(R.id.scanButton);
+        scanButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    v.startAnimation(animScale);
+                    scanOnClick();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        bleDeviceListHolder = findViewById(R.id.bleDeviceListHolder);
+        bleDeviceListHolder.setVisibility(View.GONE);
+
+        bleDeviceListView = (ListView) bleDeviceListHolder.findViewById(R.id.bleDeviceListView);
+        bleDeviceOuter = (ImageView) bleDeviceListHolder.findViewById(R.id.bleDeviceOuter);
+
+        listViewAdapter = new BLEDeviceListAdapter(this);
+
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
+        bluetoothHandler = BluetoothHandler.getInstance();
+        bluetoothHandler.init(this);
+        Log.i("onCreate", "created again");
+        bluetoothHandler.setOnConnectedListener(new BluetoothHandler.OnConnectedListener() {
+            @Override
+            public void onConnected(boolean isConnected) {
+                setConnectStatus(isConnected);
+            }
+        });
+
+        bleDeviceListView.setAdapter(bluetoothHandler.getDeviceListAdapter());
+        bleDeviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                connecting = true;
+                BluetoothDevice device = bluetoothHandler.getDeviceListAdapter().getItem(position).device;
+                bluetoothHandler.connect(device.getAddress());
+                listViewAdapter.clearDevice();
+                hideDeviceList();
+            }
+        });
+
+        bleDeviceOuter.setOnClickListener(new ImageView.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!connecting) {
+                    exitConnectView();
+                }
+            }
+        });
+
+        initConnectView();
+    }
+
     @Override
     public void onResume(){
         super.onResume();
-        bluetoothHandler.onResume();
+        init();
     }
 
 
     @Override
     public void onPause(){
         super.onPause();
-        bluetoothHandler.onPause();
+        //TODO action pending depending on app flow
+//        bluetoothHandler.onPause();
     }
 
 
@@ -253,7 +270,7 @@ public class ConnectActivity extends Activity {
         Command startScanning = new Command() {
             @Override
             public void execute() {
-                if (!isConnected) {
+                if (!bluetoothHandler.isConnected()) {
                     bluetoothHandler.setOnScanListener(new BluetoothHandler.OnScanListener() {
                         @Override
                         public void onScanFinished() {

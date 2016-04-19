@@ -20,7 +20,8 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.eys.blindcap.ConnectActivity;
+import android.app.Activity;
+import com.eys.blindcap.MainActivity;
 
 public class BluetoothHandler {
 	// scan bluetooth device
@@ -39,16 +40,32 @@ public class BluetoothHandler {
 	private OnConnectedListener onConnectedListener;
 	private OnScanListener onScanListener;
 	
-	private List<BluetoothGattService> gattServices = null; 
+	private List<BluetoothGattService> gattServices = null;
 	private UUID targetServiceUuid =
-            UUID.fromString("629a0c20-0418-d8bc-e411-22a2d08a13fa");
+			UUID.fromString("969c692e-9cc2-4f99-8e70-c5a844400451");
+//            UUID.fromString("629a0c20-0418-d8bc-e411-22a2d08a13fa");
     private UUID targetCharacterUuid =
-            UUID.fromString("fa138a01-a222-11e4-bcd8-1804200c9a62");
+		UUID.fromString("969c692e-9cc2-4f99-8e70-c5a844400451");
+//            UUID.fromString("fa138a01-a222-11e4-bcd8-1804200c9a62");
     private UUID readUUID =
-            UUID.fromString("fa138a01-a222-11e4-bcd8-1804200c9a62");
+		UUID.fromString("969c692e-9cc2-4f99-8e70-c5a844400451");
+//            UUID.fromString("fa138a01-a222-11e4-bcd8-1804200c9a62");
     private BluetoothGattCharacteristic targetGattCharacteristic = null;
     
     private Context context;
+
+    private boolean isConnected = false;
+    public boolean reconnecting = false;
+
+	private static BluetoothHandler INSTANCE = new BluetoothHandler();
+
+	// El constructor privado no permite que se genere un constructor por defecto.
+	// (con mismo modificador de acceso que la definición de la clase)
+	private BluetoothHandler() {}
+
+	public static BluetoothHandler getInstance() {
+		return INSTANCE;
+	}
 	
     public interface OnRecievedDataListener{
     	public void onRecievedData(byte[] bytes);
@@ -66,23 +83,36 @@ public class BluetoothHandler {
     public void setOnScanListener(OnScanListener l){
     	onScanListener = l;
     }
-    
-	public BluetoothHandler(Context context) {
+
+    public void setContext(Activity activity){
+        this.context = activity;
+    }
+
+	public void init(Context context) {
 		// TODO Auto-generated constructor stub
 		this.context = context;
+
+        if (mConnected){
+            ((Activity) context).unbindService(mServiceConnection);
+            mBluetoothLeService.disconnect();
+        }
+        mBluetoothLeService = null;
+        mConnected = false;
+
+        this.isConnected = false;
 		mDevListAdapter = new BLEDeviceListAdapter(context);
 		mBluetoothAdapter = null;
 		mCurrentConnectedBLEAddr = null;
 		
 		if(!isSupportBle()){
 			Toast.makeText(context, "your device not support BLE!", Toast.LENGTH_SHORT).show();
-			((ConnectActivity)context).finish();
+			((Activity)context).finish();
 			return ;
 		}
 		// open bluetooth
         if (!getBluetoothAdapter().isEnabled()) { 
             Intent mIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE); 
-            ((ConnectActivity)context).startActivityForResult(mIntent, 1);   
+            ((Activity)context).startActivityForResult(mIntent, 1);   
         }else{
         	setEnabled(true);
         }
@@ -96,11 +126,11 @@ public class BluetoothHandler {
 		mDeviceAddress = deviceAddress;	
 		Intent gattServiceIntent = new Intent(context, BluetoothLeService.class);
 		
-		if(!((ConnectActivity)context).bindService(gattServiceIntent, mServiceConnection, ((ConnectActivity)context).BIND_AUTO_CREATE)){
+		if(!((Activity)context).bindService(gattServiceIntent, mServiceConnection, ((Activity)context).BIND_AUTO_CREATE)){
 			System.out.println("bindService failed!");
 		} 
 		
-		((ConnectActivity)context).registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
+		((Activity)context).registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
         if (mBluetoothLeService != null) {
             final boolean result = mBluetoothLeService.connect(mDeviceAddress);
         }else{
@@ -125,7 +155,7 @@ public class BluetoothHandler {
         	mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
             if (!mBluetoothLeService.initialize()) {
                 Log.e("onServiceConnected", "Unable to initialize Bluetooth");
-                ((ConnectActivity) context).finish();
+                ((Activity) context).finish();
             }
             // Automatically connects to the device upon successful start-up initialization.
             mBluetoothLeService.connect(mDeviceAddress);
@@ -133,15 +163,32 @@ public class BluetoothHandler {
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
         	mBluetoothLeService = null;
+
+            Log.e("onServiceDisconnected", "Service disconnected");
+            setIsConnected(false);
         }
     };
+
+    public void reconnect(){
+        reconnecting = true;
+        mBluetoothLeService.disconnect();
+        setOnScanListener(new BluetoothHandler.OnScanListener() {
+            @Override
+            public void onScanFinished() {
+
+                mBluetoothLeService.connect(mDeviceAddress);
+            }
+            @Override
+            public void onScan(BluetoothDevice device, int rssi, byte[] scanRecord) {}
+        });
+        scanLeDevice(true);
+    }
     
     // Handles various events fired by the Service.
     // ACTION_GATT_CONNECTED: connected to a GATT server.
     // ACTION_GATT_DISCONNECTED: disconnected from a GATT server.
     // ACTION_GATT_SERVICES_DISCOVERED: discovered GATT services.
-    // ACTION_DATA_AVAILABLE: received data from the device.  This can be a result of read
-    //                        or notification operations.
+    // ACTION_DATA_AVAILABLE: received data from the device.  This can be a result of read or notification operations.
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -153,20 +200,14 @@ public class BluetoothHandler {
                 	onConnectedListener.onConnected(true);
                 }
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
+                Log.e("onServiceDisconnected", "Other Service disconnected");
                 mConnected = false;
-                mCurrentConnectedBLEAddr = null;
-                if(onConnectedListener != null){
-                	onConnectedListener.onConnected(false);
-                }
+                setIsConnected(false);
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-                // Show all the supported services and characteristics on the user interface.
-                //displayGattServices(mBluetoothLEService.getSupportedGattServices());
             	if(mBluetoothLeService != null)
             		getCharacteristic(mBluetoothLeService.getSupportedGattServices());
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-                // ���յ�������
             	byte[] bytes = intent.getByteArrayExtra(BluetoothLeService.EXTRA_DATA);
-            	//System.out.println("len:"+dataString.length()+"data:"+dataString);
             	if(onRecListener != null)
             		onRecListener.onRecievedData(bytes);
             }
@@ -189,6 +230,7 @@ public class BluetoothHandler {
         // get target gattservice
         for (BluetoothGattService gattService : gattServices) {
             uuid = gattService.getUuid().toString();
+            Log.i("Le service", "The service is "  + uuid);
             if(uuid.equals(targetServiceUuid.toString())){
                 targetGattService = gattService;
                 break;
@@ -202,14 +244,6 @@ public class BluetoothHandler {
         }
         List<BluetoothGattCharacteristic> gattCharacteristics =
             targetGattService.getCharacteristics();
-        // get targetGattCharacteristic
-        /*for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
-            uuid = gattCharacteristic.getUuid().toString();
-            if(uuid.equals(targetCharacterUuid.toString())){
-                targetGattCharacteristic = gattCharacteristic;
-                break;
-            }
-        }*/
         targetGattCharacteristic = targetGattService.getCharacteristic(targetCharacterUuid);
 		BluetoothGattCharacteristic readGattCharacteristic = targetGattService.getCharacteristic(readUUID);
 		if(readGattCharacteristic != null)
@@ -226,7 +260,7 @@ public class BluetoothHandler {
 	public void onPause() {
 		// TODO Auto-generated method stub
 		if(mConnected){
-			((ConnectActivity) context).unregisterReceiver(mGattUpdateReceiver);
+			((Activity) context).unregisterReceiver(mGattUpdateReceiver);
 		}
 	}
 	
@@ -234,7 +268,7 @@ public class BluetoothHandler {
 		if(mConnected){
 			mDevListAdapter.clearDevice();
 			mDevListAdapter.notifyDataSetChanged();
-			((ConnectActivity) context).unbindService(mServiceConnection);
+			((Activity) context).unbindService(mServiceConnection);
 			mBluetoothLeService = null;
 			mConnected = false;
         }
@@ -243,7 +277,7 @@ public class BluetoothHandler {
 	public void onResume(){
 		if(!mConnected || mBluetoothLeService == null)
 			return ;
-		((ConnectActivity)context).registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
+		((Activity)context).registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
         if (mBluetoothLeService != null) {
             final boolean result = mBluetoothLeService.connect(mDeviceAddress);
             Log.d("registerReceiver", "Connect request result=" + result);
@@ -251,6 +285,9 @@ public class BluetoothHandler {
 	}
 	
 	public synchronized void sendData(byte[] value){
+        Log.i("gatt", Boolean.toString(targetGattCharacteristic != null));
+        Log.i("leservice", Boolean.toString(mBluetoothLeService != null));
+        Log.i("connected", Boolean.toString(mConnected == true));
     	if(targetGattCharacteristic != null && mBluetoothLeService != null && mConnected == true){
     		int targetLen = 0;
     		int offset=0;
@@ -361,7 +398,7 @@ public class BluetoothHandler {
         		System.out.printf("%02X ", b);
         	System.out.println("");
         	
-            ((ConnectActivity)context).runOnUiThread(new Runnable() {
+            ((Activity)context).runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                 	Message msg = new Message();
@@ -392,8 +429,20 @@ public class BluetoothHandler {
     		return Math.pow(ratio,10);
     	}
     	else {
-    		double accuracy =  (0.89976)*Math.pow(ratio,7.7095) + 0.111;    
+    		double accuracy =  (0.89976)*Math.pow(ratio, 7.7095) + 0.111;
     		return accuracy;
     	}
-    }  
+    }
+
+    public boolean isConnected(){
+        return isConnected;
+    }
+
+    public void setIsConnected(boolean newConnected){
+        this.isConnected = newConnected;
+    }
+
+    private void showMessage(String str){
+        Toast.makeText(context, str, Toast.LENGTH_SHORT).show();
+    }
 }

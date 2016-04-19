@@ -5,6 +5,8 @@ import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.app.Activity;
+import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.graphics.drawable.AnimationDrawable;
@@ -22,6 +24,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.eys.ble.BluetoothHandler;
 
 import java.util.ArrayList;
 
@@ -65,11 +68,21 @@ public class MainActivity extends Activity implements View.OnTouchListener {
     Typeface fontRegular;
 
 
+    private Context mContext;
+
+    // Bluetooth
+    private BluetoothHandler bluetoothHandler;
+    private boolean beaconOn = false;
+    private Runnable reconnectionRunnable;
+    private Runnable reconnectionHolderRunnable;
+    private Runnable vibrationRunnable;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mContext = this;
         content = (RelativeLayout) findViewById(R.id.content);
         startButton = (Button) findViewById(R.id.startButton);
         digits = (LinearLayout) findViewById(R.id.timerDigits);
@@ -84,6 +97,59 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         animOpacity = (AnimatorSet) AnimatorInflater.loadAnimator(this, R.animator.opacity_anim);
 
         fontRegular = Typeface.createFromAsset(getAssets(), "font/SamsungSharpSans-Regular.ttf");
+        bluetoothHandler = BluetoothHandler.getInstance();
+        bluetoothHandler.setContext(this);
+        bluetoothHandler.setOnConnectedListener(new BluetoothHandler.OnConnectedListener() {
+            @Override
+            public void onConnected(boolean isConnected) {
+                bluetoothHandler.setIsConnected(isConnected);
+                showMessage("Reconnected successfully");
+            }
+        });
+
+
+        reconnectionRunnable = new Runnable() {
+            @Override
+            public void run() {
+                Log.i("Runnable", "Reconnection runnable running");
+                reconnect();
+            }
+        };
+
+        vibrationRunnable = new Runnable() {
+            @Override
+            public void run() {
+                stopVibration();
+            }
+        };
+
+        reconnectionHolderRunnable = new Runnable() {
+            @Override
+            public void run() {
+                Log.i("Runnable", "Disable reconnection");
+                bluetoothHandler.reconnecting = false;
+                handler.removeCallbacks(reconnectionHolderRunnable);
+
+            }
+        };
+
+    }
+
+    public void reconnect(){
+        if (!bluetoothHandler.isConnected() && !bluetoothHandler.reconnecting) {
+            beaconOn = false;
+            Log.i("Runnable", "Trying to reconnect");
+            bluetoothHandler.reconnecting = true;
+            showMessage("Trying to reconnect");
+            handler.postDelayed(reconnectionHolderRunnable, 2000);
+            bluetoothHandler.reconnect();
+        }
+        handler.removeCallbacks(reconnectionRunnable);
+        handler.postDelayed(reconnectionRunnable, bluetoothHandler.reconnecting ? 2500 : 1000);
+    }
+
+    public MainActivity getMainActivity(){
+        return this;
     }
 
 
@@ -97,13 +163,31 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         initStopWatch();
         initTurnButton();
         initMenu();
+        handler.postDelayed(reconnectionRunnable, 1000);
+
     }
+
 
 
     @Override
     public void onPause(){
         super.onPause();
         stopTimer();
+        handler.removeCallbacks(reconnectionRunnable);
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        handler.removeCallbacks(reconnectionRunnable);
+        bluetoothHandler.onDestroy();
+    }
+
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        handler.postDelayed(reconnectionRunnable, 1000);
     }
 
 
@@ -328,11 +412,30 @@ public class MainActivity extends Activity implements View.OnTouchListener {
         animOpacity.setTarget(turnButton);
         animOpacity.start();
 
-        // TODO: @Rodrigo: send bluetooth signal
+        startVibration();
 
         takeTimeSnapshot();
     }
 
+    private void stopVibration(){
+        Log.i("vibration", "stop vibration");
+        if(bluetoothHandler.isConnected() && !bluetoothHandler.reconnecting && beaconOn){
+            bluetoothHandler.sendData(new byte[]{0});
+            Log.i("vibration", "send stop vibration");
+            beaconOn = false;
+        }
+    }
+
+    private void startVibration(){
+        Log.i("vibration", "start vibration");
+        if(bluetoothHandler.isConnected() && !bluetoothHandler.reconnecting && !beaconOn){
+            bluetoothHandler.sendData(new byte[]{1});
+            Log.i("vibration", "send start vibration");
+            beaconOn = true;
+            handler.postDelayed(vibrationRunnable, 3000);
+        }
+    }
+    
 
     private void onTimerClick() {
         startButton.startAnimation(animScale);
@@ -405,5 +508,9 @@ public class MainActivity extends Activity implements View.OnTouchListener {
             }
         }
         return true;
+    }
+
+    private void showMessage(String str){
+        Toast.makeText(MainActivity.this, str, Toast.LENGTH_SHORT).show();
     }
 }

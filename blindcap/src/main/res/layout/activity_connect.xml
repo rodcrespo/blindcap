@@ -18,6 +18,8 @@
             android:adjustViewBounds="true"
             android:src="@drawable/logo_samsung_intro"/>
 
+
+
         <ImageButton
             android:id="@+id/scanButton"
             android:layout_width="wrap_content"
@@ -126,6 +128,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <ImageView
+            android:id="@+id/bleDeviceOuter"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:src="@drawable/background_gradient"
