@@ -411,6 +411,10 @@ public class MainActivity extends Activity implements View.OnTouchListener {
 //        animOpacity.setTarget(turnButton);
 //        animOpacity.start();
 
+        if (!isTimerRunning) {
+            return;
+        }
+
         startVibration();
 
         takeTimeSnapshot();
