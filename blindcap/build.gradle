@@ -17,7 +17,7 @@ android {
     buildToolsVersion "23.0.2"
 
     defaultConfig {
-        applicationId "com.cheil.blindcap"
+        applicationId "com.samsung.blindcap"
         minSdkVersion 21
         targetSdkVersion 23
         versionCode 2
