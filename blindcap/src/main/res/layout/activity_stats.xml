@@ -123,4 +123,19 @@
             android:padding="8dp"/>
         </FrameLayout>
 
+    <FrameLayout
+        android:id="@+id/btnNextPage"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="70dp"
+        android:background="@drawable/circle_line"
+        android:clickable="true">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/next_page_button"
+            android:padding="8dp"/>
+    </FrameLayout>
 </RelativeLayout>

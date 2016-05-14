@@ -16,6 +16,7 @@ import java.util.ArrayList;
 public class CanvasView extends View {
 
     ArrayList<Long> lapTimes = new ArrayList<Long>();
+    int page;
 
     Context context;
     private Path mPath;
@@ -56,11 +57,17 @@ public class CanvasView extends View {
     }
 
 
-    public void setData(LapDataList lapsData) {
+    public void setData(LapDataList lapsData, int page) {
         lapTimes.clear();
 
-        for (LapData lapData : lapsData) {
-            this.lapTimes.add( lapData.getMillis() );
+
+        this.page = page;
+        int numLaps = lapsData.size();
+        int numItems = 8;
+
+        for (int i = numItems * page ; i < numItems * (page + 1) ; i++) {
+            if (i >= numLaps) { break; }
+            this.lapTimes.add( lapsData.get(i).getMillis() );
         }
 
         invalidate();
@@ -116,7 +123,7 @@ public class CanvasView extends View {
 
             // draw text
             float textX = x - textOffset;
-            canvas.drawText("L"+String.valueOf(i+1), textX, textY, paintGreyText);
+            canvas.drawText("L"+String.valueOf((8*page) + i + 1), textX, textY, paintGreyText);
 
             // add point to path
             mPath.lineTo(x, y1);
@@ -125,17 +132,10 @@ public class CanvasView extends View {
         canvas.drawPath(mPath, paintBlueStroke);
     }
 
-
-//    public void clearCanvas() {
-//        mPath.reset();
+    public void clearCanvas() {
+        mPath.reset();
 //        invalidate();
-//    }
-
-
-//    private int toDp(int px) {
-//        final float scale = getResources().getDisplayMetrics().density;
-//        return (int) (px / scale);
-//    }
+    }
 
 
     private int toPx(int dp) {

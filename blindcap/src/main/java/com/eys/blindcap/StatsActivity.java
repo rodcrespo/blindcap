@@ -25,8 +25,11 @@ import java.util.Comparator;
  */
 public class StatsActivity extends Activity {
 
+    private final static int MAX_LAPS = 96;
+
     private LapDataList lapsData;
     private long totalTime;
+    int page = 0;
 
     Typeface fontRegular, fontMedium;
 
@@ -49,18 +52,36 @@ public class StatsActivity extends Activity {
 
         animScale = AnimationUtils.loadAnimation(this, R.anim.scale_anim);
 
+        this.page = 0;
+
         // init views
-        initGraph();
+        initGraph(page);
         initBestLaps();
-        initLaps();
+        initLaps(page);
         initCloseBtn();
+        initNextPageBtn();
     }
 
+    private void nextPage(){
+        this.page = (this.page + 1) < (MAX_LAPS / 8) ? this.page + 1 : 0;
 
-    private void initGraph() {
+        CanvasView graphView = (CanvasView) findViewById(R.id.graphView);
+        graphView.clearCanvas();
+        initGraph(page);
+
+        ViewGroup container = (ViewGroup) findViewById(R.id.lapsContainer);
+        ViewGroup leftColumn = (ViewGroup) container.getChildAt(0);
+        ViewGroup rightColumn = (ViewGroup) container.getChildAt(1);
+        leftColumn.removeAllViews();
+        rightColumn.removeAllViews();
+        initLaps(page);
+
+    }
+
+    private void initGraph(int page) {
         // canvas
         CanvasView graphView = (CanvasView) findViewById(R.id.graphView);
-        graphView.setData(lapsData);
+        graphView.setData(lapsData, page);
 
         // total time
         TextView totalTimeView = (TextView) findViewById(R.id.totalTime);
@@ -134,7 +155,7 @@ public class StatsActivity extends Activity {
     }
 
 
-    private void initLaps() {
+    private void initLaps(int page) {
         ViewGroup container = (ViewGroup) findViewById(R.id.lapsContainer);
         ViewGroup leftColumn = (ViewGroup) container.getChildAt(0);
         ViewGroup rightColumn = (ViewGroup) container.getChildAt(1);
@@ -142,7 +163,7 @@ public class StatsActivity extends Activity {
         int numLaps = lapsData.size();
         int numItems = 8;
 
-        for (int i = 0; i < numItems; i++) {
+        for (int i = numItems * page ; i < numItems * (page + 1) ; i++) {
             String lapIndexText;
             String lapTimeText;
 
@@ -163,15 +184,6 @@ public class StatsActivity extends Activity {
             ((TextView) item.findViewById(R.id.lapTime)).setText(lapTimeText);
 
             if (i % 2 == 0) {
-                // align to right of container
-//                LinearLayout.LayoutParams params =
-//                        new LinearLayout.LayoutParams(
-//                                LinearLayout.LayoutParams.WRAP_CONTENT,
-//                                LinearLayout.LayoutParams.WRAP_CONTENT
-//                        );
-//                params.gravity = Gravity.RIGHT;
-//                item.setLayoutParams(params);
-
                 leftColumn.addView(item);
             } else {
                 rightColumn.addView(item);
@@ -183,8 +195,6 @@ public class StatsActivity extends Activity {
 
 
     private void closeStats() {
-//        Intent intent = new Intent(this, MainActivity.class);
-//        startActivity(intent);
         finish();
     }
 
@@ -197,6 +207,20 @@ public class StatsActivity extends Activity {
                 if(event.getAction() == MotionEvent.ACTION_DOWN){
                     v.startAnimation(animScale);
                     closeStats();
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
+
+    private void initNextPageBtn() {
+        View nextPageBtn = findViewById(R.id.btnNextPage);
+        nextPageBtn.setOnTouchListener(new View.OnTouchListener(){
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(event.getAction() == MotionEvent.ACTION_DOWN){
+                    nextPage();
                     return true;
                 }
                 return false;

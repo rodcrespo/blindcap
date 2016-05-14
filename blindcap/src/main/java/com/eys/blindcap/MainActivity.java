@@ -34,7 +34,7 @@ import java.util.ArrayList;
 
 public class MainActivity extends Activity implements View.OnTouchListener {
 
-    private final static int MAX_NUM_SNAPSHOOTS = 8;
+    private final static int MAX_NUM_SNAPSHOOTS = 100;
 
     // views
     private RelativeLayout content;
