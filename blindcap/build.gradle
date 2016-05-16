@@ -20,7 +20,7 @@ android {
         applicationId "com.samsung.blindcap"
         minSdkVersion 21
         targetSdkVersion 23
-        versionCode 4
+        versionCode 5
         versionName "1.0"
     }
 
